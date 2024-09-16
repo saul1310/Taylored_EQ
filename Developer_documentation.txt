@@ -1,0 +1,6 @@
+Juce documentation
+
+https://juce.com/learn/documentation/
+
+C++ documentation (lol)
+https://devdocs.io/cpp/
