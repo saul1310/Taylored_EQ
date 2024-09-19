@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<base href="https://docs.hise.dev/"/>
+	<title>HISE | Docs</title>
+	<link rel="stylesheet" type="text/css" href="/template/css/prism.css">
+	<link rel="stylesheet" type="text/css" media="screen" href="/template/css/autoComplete.css">
+	<link href="https://fonts.googleapis.com/css?family=Heebo" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" media="screen" href="/template/css/style.css">
+	<script src="/template/scripts/toc.json"></script>
+	<script language="javascript" src="/template/scripts/generate.js"></script>
+</head>
+<body>
+	<header>
+		<a id="nav-button">
+		</a>
+		<logo>
+			
+			<a href="/">
+				<div class="heading">HISE Docs</div>
+			</a>
+		</logo>
+		<div class="search">
+			<input id="autoComplete" tabindex="1">
+		</div>
+	</header>
+
+	<div class="container">
+		<nav class="toc">
+			<script>
+				for (rootIndex in rootDb.Children) {
+					document.write(createTocElement(rootDb.Children[rootIndex]));
+				}
+			</script>
+
+		</nav>
+
+		<div class="content"><h1 id="sound-generators"><img src="images/icon_speaker.png"></img>
+<b>Sound Generators</b>
+</h1>
+<p>A sound generator is an audio module that takes incoming MIDI data and generate audio signals.</p>
+<h2 id="signal-path"><b>Signal Path</b>
+</h2>
+<p>The sound generator renders polyphonic voices using the following graph:</p>
+<img style="max-width:1200px;" src="images/custom/soundgenerators2.svg"></img>
+<p> </p>
+<p>It starts with the MIDI processing which takes the incoming MIDI messages and starts / stops the voices. The next step is the rendering of all monophonic pitch modulators: this signal will be merged with the polyphonic pitch modulation signal, but only needs to be calculated once.<br></p>
+<p>Now we iterate over each active voice and render its output - actually it will calculate the polyphonic pitch modulation first, then render the voice output using the pitch modulation data and apply the polyphonic gain modulation plus the polyphonic effects for each voice.</p>
+<p>At the end, the monophonic gain modulation will be applied to the voices, then the monophonic effects will be processed on the entire output. The output then will be <b>added</b>
+ to the existing signal (so that you can stack up multiple sound generators).</p>
+<h2 id="multichannel-routing"><b>Multichannel Routing</b>
+</h2>
+<p>There are multiple use cases in the instrument design where you would want to have a multichannel routing:</p>
+<ul><li>multimic samples</li>
+<li>AUX sends</li>
+<li>parallel FX processing</li>
+</ul>
+<p>A sound generator in HISE can process multiple channels (if applicable, a sine wave generator doesn't need to calculate the signal for every channel obviously).</p>
+<img src="images/custom/routing_matrix.png"></img>
+<p> </p>
+<p>You can access the Routing Matrix with clicking on the little "volume-display-icon" next to the SoundGenerators name.</p>
+<p>You can change the channel amount by right-clicking in the Routing Matrix popup or by creating a "typed Routing Matrix Script Reference". (by right-click on the Audio Modules top-bar) and set the number of channels via script:</p>
+<pre><code class="language-javascript line-numbers">const var MasterChain = Synth.getRoutingMatrix("Master Chain");
+MasterChain.setNumChannels(8);</code></pre>
+<h2 id="common-parameters"><b>Common parameters</b>
+</h2>
+<table><thead><td><b>#</b>
+<b> </b>
+</td>
+<td><b>ID </b>
+</td>
+<td><b>Description </b>
+</td>
+</thead>
+<tr><td>0 </td>
+<td><code>Gain</code>
+ </td>
+<td>The volume of the synth. It is stored as gain value from <code>0...1</code>
+ so you need to use the conversion functions when using decibel ranges </td>
+</tr>
+<tr><td>1 </td>
+<td><code>Balance</code>
+ </td>
+<td>The stereo balance of the synth. The range is <code>-100...100</code>
+ </td>
+</tr>
+<tr><td>2 </td>
+<td><code>VoiceLimit</code>
+ </td>
+<td>The number of voices that this synth can play. </td>
+</tr>
+<tr><td>3 </td>
+<td><code>KillFadeTime</code>
+ </td>
+<td>If you play more than the number of available voices this determines the fade out time of the voice that is going to be killed in ms </td>
+</tr>
+</table>
+<h2 id="chains-"><b>Chains </b>
+</h2>
+<table><thead><td><b>#</b>
+<b> </b>
+</td>
+<td><b>Icon </b>
+</td>
+<td><b>ID </b>
+</td>
+<td><b>Description </b>
+</td>
+</thead>
+<tr><td>0 </td>
+<td><img src="images/icon_midi.png"></img>
+</td>
+<td>MIDI </td>
+<td>Every MIDI message that is received by the sound generator will be processed by this chain. If you ignore the message here, it won't be passed to child modules </td>
+</tr>
+<tr><td>1 </td>
+<td><img src="images/icon_gain.png"></img>
+</td>
+<td>Gain </td>
+<td>The volume modulation of this sound generator. The modulation range 0...1 will be used as gain value </td>
+</tr>
+<tr><td>2 </td>
+<td><img src="images/icon_pitch.png"></img>
+</td>
+<td>Pitch </td>
+<td>The pitch modulation of this sound generator. The modulation range 0...1 will be converted to pitch values according to the BiPolar parameter </td>
+</tr>
+<tr><td>3 </td>
+<td><img src="images/icon_fx.png"></img>
+</td>
+<td>FX </td>
+<td>the effect chain of this module </td>
+</tr>
+</table>
+<div class="content-footer"><span class="content-footer-left"><a href="https://forum.hise.audio">Join Discussion</a>
+</span>
+
+<span class="content-footer-right">Next: <a href="hise-modules/sound-generators/list/index.html">List of Sound Generators</a>
+</span>
+
+<p class="content-footer-metadata"><br><br></p>
+</div>
+
+			<!-- content end -->
+		</div>
+
+		<!-- container end -->
+	</div>
+
+	 <footer>  
+		 <div> <a href="https://github.com/christophhart/hise_documentation/tree/master"> HISE Docs </a> <img src="/template/css/images/pd.svg" width="12px" id="year" style="padding:2px 2px" /></div> 
+	 </footer>  
+
+	<script>   document.getElementById("year").innerHTML = new Date().getFullYear();  </script>
+	<script src="/template/scripts/prism.js"></script>
+	<script src="/template/scripts/autoComplete.js"></script>
+	<script src="/template/scripts/search.js"></script>
+	
+</body>
+</html>
